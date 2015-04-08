@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
@@ -47,26 +48,30 @@ public class CalculatorApplicationTest {
 
     @Test
     public void testAdd() throws Exception {
-        assertEquals(5, client.calculate(2, 3, TOperation.ADD));
+        assertEquals((Integer) 5, client.calculate(2, 3, TOperation.ADD).get());
     }
 
     @Test
     public void testSubtract() throws Exception {
-        assertEquals(3, client.calculate(5, 2, TOperation.SUBTRACT));
+        assertEquals((Integer) 3, client.calculate(5, 2, TOperation.SUBTRACT).get());
     }
 
     @Test
     public void testMultiply() throws Exception {
-        assertEquals(10, client.calculate(5, 2, TOperation.MULTIPLY));
+        assertEquals((Integer) 10, client.calculate(5, 2, TOperation.MULTIPLY).get());
     }
 
     @Test
     public void testDivide() throws Exception {
-        assertEquals(2, client.calculate(10, 5, TOperation.DIVIDE));
+        assertEquals((Integer) 2, client.calculate(10, 5, TOperation.DIVIDE).get());
     }
 
     @Test(expected = TDivisionByZeroException.class)
-    public void testDivisionByZero() throws Exception {
-        client.calculate(10, 0, TOperation.DIVIDE);
+    public void testDivisionByZero() throws Throwable {
+        try {
+            client.calculate(10, 0, TOperation.DIVIDE).get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
     }
 }
